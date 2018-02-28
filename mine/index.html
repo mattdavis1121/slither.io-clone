@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Slither.io Clone - Matt Davis</title>
+    <script src="lib/phaser.min.js"></script>
+    <script src="src/game.js"></script>
+    <script src="src/snake.js"></script>
+    <script src="src/util.js"></script>
+    <script src="src/cameraUtil.js"></script>
+</head>
+<body>
+    <script>
+        (function() {
+            var game = new Phaser.Game(800, 500, Phaser.AUTO, null);
+
+            game.state.add('Game', Game);
+            game.state.start('Game');
+
+            console.log(game);
+            console.log(Util);
+        })();
+    </script>
+</body>
+</html>
