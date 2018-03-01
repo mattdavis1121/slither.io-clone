@@ -6,7 +6,7 @@ Snake = function(game, spriteKey, x, y) {
     }
 
     this.game.snakes.push(this);
-    this.debug = true;
+    this.debug = false;
     this.snakeLength = 0;
     this.spriteKey = spriteKey;
 
