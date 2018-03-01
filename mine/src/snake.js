@@ -6,7 +6,7 @@ Snake = function(game, spriteKey, x, y) {
     }
 
     this.game.snakes.push(this);
-    this.debug = false;
+    this.debug = true;
     this.snakeLength = 0;
     this.spriteKey = spriteKey;
 
@@ -31,6 +31,20 @@ Snake = function(game, spriteKey, x, y) {
 
     this.lastHeadPosition = new Phaser.Point(this.head.body.x, this.head.body.y);
     this.initSections(30);
+
+    this.edgeOffset = 4;
+    this.edge = this.game.add.sprite(x, y - this.edgeOffset, this.spriteKey);
+    this.edge.name = "edge";
+    this.edge.alpha = 0;
+    this.game.physics.p2.enable(this.edge, this.debug);
+    this.edge.body.setCircle(this.edgeOffset);
+
+    // Keep edge in front of head
+    this.edgeLock = this.game.physics.p2.createLockConstraint(
+        this.edge.body, this.head.body, [0, -this.head.width*0.5-this.edgeOffset]
+    );
+
+    this.edge.body.onBeginContact.add(this.edgeContact, this);
 
     this.onDestroyedCallbacks = [];
     this.onDestroyedContexts = [];
@@ -164,6 +178,11 @@ Snake.prototype = {
         this.scale = scale;
         this.preferredDistance = 17 * this.scale;
 
+        // Update edge lock location with p2 physics
+        this.edgeLock.localOffsetB = [
+            0, this.game.physics.p2.pxmi(this.head.width*0.5+this.edgeOffset)
+        ];
+
         //scale sections and their bodies
         for (var i = 0 ; i < this.sections.length ; i++) {
             var sec = this.sections[i];
@@ -181,6 +200,10 @@ Snake.prototype = {
     },
     destroy: function() {
         this.game.snakes.splice(this.game.snakes.indexOf(this), 1);
+        // remove edge and constraints
+        this.game.physics.p2.removeConstraint(this.edgeLock);
+        this.edge.destroy();
+
         this.sections.forEach(function(sec, index) {
             sec.destroy();
         });
@@ -190,6 +213,19 @@ Snake.prototype = {
             if (typeof this.onDestroyedCallbacks[i] === "function") {
                 this.onDestroyedCallbacks[i].apply(this.onDestroyedContexts[i], [this]);
             }
+        }
+    },
+    edgeContact: function(phaserBody) {
+        // if edge hits another snake, kill this snake
+        if (phaserBody && this.sections.indexOf(phaserBody.sprite) === -1) {
+            this.destroy();
+        }
+
+        // This is a hack. If snake hits itself, move edge to center of head.
+        // It will then move back to the front because of the lock constraint.
+        else if (phaserBody) {
+            this.edge.body.x = this.head.body.x;
+            this.edge.body.y = this.head.body.y;
         }
     }
 };
