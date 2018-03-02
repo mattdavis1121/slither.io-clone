@@ -32,6 +32,8 @@ Snake = function(game, spriteKey, x, y) {
     this.lastHeadPosition = new Phaser.Point(this.head.body.x, this.head.body.y);
     this.initSections(30);
 
+    this.eyes = new EyePair(this.game, this.head, this.scale);
+
     this.edgeOffset = 4;
     this.edge = this.game.add.sprite(x, y - this.edgeOffset, this.spriteKey);
     this.edge.name = "edge";
@@ -138,6 +140,8 @@ Snake.prototype = {
             this.lastHeadPosition = new Phaser.Point(this.head.body.x, this.head.body.y);
             this.onCycleComplete();
         }
+
+        this.eyes.update();
     },
     /**
      * On each completed cycle, add a section at the end of snake, if sections
@@ -189,6 +193,8 @@ Snake.prototype = {
             sec.scale.setTo(this.scale);
             sec.body.data.shapes[0].radius = this.game.physics.p2.pxm(sec.width*0.5);
         }
+
+        this.eyes.setScale(scale);
     },
     incrementSize: function() {
         this.addSectionAfterLast(1);
@@ -207,6 +213,7 @@ Snake.prototype = {
         this.sections.forEach(function(sec, index) {
             sec.destroy();
         });
+        this.eyes.destroy();
 
         // Call snake's destruction callbacks
         for (var i = 0; i < this.onDestroyedCallbacks.length; i++) {

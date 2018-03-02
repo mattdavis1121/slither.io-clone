@@ -5,6 +5,9 @@ Game.prototype = {
     preload: function () {
         this.game.load.image('circle', 'asset/circle.png');
         this.game.load.image('background', 'asset/tile.png');
+
+        this.game.load.image('eye-white', 'asset/eye-white.png');
+    	this.game.load.image('eye-black', 'asset/eye-black.png');
     },
     create: function () {
         this.cameraUtil = new CameraUtil(this.game);
